@@ -1,64 +1,26 @@
-import { Schema, model, Document } from "mongoose";
-import bcrypt from "bcryptjs";
+import { Schema, model } from "mongoose";
 
-export interface IUser extends Document {
+export interface IUser {
   nom: string;
   email: string;
   motDePasse: string;
-  role: "admin" | "utilisateur";
-  statut: "actif" | "suspendu";
-  comparerMotDePasse(motDePasseSaisi: string): Promise<boolean>;
+  role: "ADMIN" | "PROPRIETAIRE";
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const userSchema = new Schema<IUser>(
   {
-    nom: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    motDePasse: {
-      type: String,
-      required: true,
-      select: false,
-    },
+    nom: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    motDePasse: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "utilisateur"],
-      default: "utilisateur",
-    },
-    statut: {
-      type: String,
-      enum: ["actif", "suspendu"],
-      default: "actif",
+      enum: ["ADMIN", "PROPRIETAIRE"],
+      default: "PROPRIETAIRE",
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
-
-// Middleware Mongoose avant la sauvegarde pour hacher le mot de passe
-userSchema.pre("save", async function (this: IUser) {
-  if (!this.isModified("motDePasse")) return;
-
-  const salt = await bcrypt.genSalt(10);
-  this.motDePasse = await bcrypt.hash(this.motDePasse, salt);
-});
-
-// Méthode personnalisée pour comparer les mots de passe
-userSchema.methods.comparerMotDePasse = async function (
-  this: IUser,
-  motDePasseSaisi: string,
-): Promise<boolean> {
-  return await bcrypt.compare(motDePasseSaisi, this.motDePasse);
-};
 
 export default model<IUser>("User", userSchema);
