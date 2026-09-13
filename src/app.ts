@@ -1,8 +1,8 @@
 import express, { Application } from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.route";
-import deviceRoutes from "./routes/device.route";
-import telemetryRoutes from "./routes/telemetry.route";
+import deviceRoutes from "./routes/device.routes";
+import telemetryRoutes from "./routes/telemetry.routes";
 import alertRoutes from "./routes/alert.route";
 import adminRoutes from "./routes/admin.route";
 
